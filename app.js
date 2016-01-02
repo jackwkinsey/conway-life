@@ -1,21 +1,55 @@
+/**
+ * ----------------------------------------------------------------------------
+ * Conway's Game of Life
+ * ----------------------------------------------------------------------------
+ * A JavaScript implementation of Conway's Game of Life with a couple of
+ * alterations:
+ * 
+ * 1. Genetics - A cell has a color and it inherited from its 3 parents.
+ * 2. Maturity - A cell matures each generation it survives (opacity).
+ * 
+ * @author Jack Kinsey
+ * @version 1.0.0
+ */
 
-// Cell size in pixels. Cells are squares so we only need
-// to specify one value (it is used for length and width).
+/**
+ * Cell size in pixels. Cells are squares so we only need
+ * to specify one value (it is used for length and width).
+ */
 var CELL_SIZE = 12;
-var FPS = 10;
+
+// TODO: this should be variable (and set by the user).
+/** The frames per second in which the simulation should run. */
+var FPS = 5;
+
+/** Flag to determine if game is running, false by default. */
 var running = false;
 
+/** The canvas where all our drawing takes place. */
 var canvas = document.getElementById('canvas');
+
+/** The 2D context of the canvas to handle the draw calls. */
 var context = canvas.getContext('2d');
 
-// Cell constructor function
+/**
+ * Model for Cell object.
+ * 
+ * @constructor
+ * @param {Number} x - The x-coordinate of the cell in terms of the Board.
+ * @param {Number} y - The y-coordinate of the cell in terms of the Board.
+ */
 function Cell (x, y) {
     this.x = x;
     this.y = y;
     this.isAlive = false;
+    this.maturity = 0.1;
 }
 
+/**
+ * Draws the Cell object on the canvas.
+ */
 Cell.prototype.draw = function () {
+    context.globalAlpha = this.maturity;
     if (this.isAlive) {
         context.fillStyle = "black";
     } else {
@@ -23,18 +57,41 @@ Cell.prototype.draw = function () {
     }
 
     context.fillRect(this.x * CELL_SIZE,
-                        this.y * CELL_SIZE,
-                        CELL_SIZE,
-                        CELL_SIZE);
+                     this.y * CELL_SIZE,
+                     CELL_SIZE,
+                     CELL_SIZE);
+                     
+   context.globalAlpha = 1;
 };
 
+/**
+ * Toggle's the Cell object; killing it if it is
+ * alive or resurrecting it if it is dead.
+ */
 Cell.prototype.toggle = function () {
-    console.log("TOGGLE!");
-    this.isAlive = !this.isAlive;
-    //this.draw();
+    if (this.isAlive) {
+        this.kill();
+    } else {
+        this.isAlive = true;
+    }
 };
 
-// Board constructor function
+/**
+ * Kills the Cell object.
+ */
+Cell.prototype.kill = function() {
+    this.isAlive = false;
+    this.maturity = 0.1;
+}
+
+/**
+ * Model for Board object. The game's board in which the
+ * Cell objects live.
+ * 
+ * @constructor
+ * @param {Number} width - The width, in Cells, of the game board.
+ * @param {Number} height - The height, in Cells, of the game board.
+ */
 function Board(width, height) {
     this.width = width;
     this.height = height;
@@ -64,26 +121,30 @@ function Board(width, height) {
 }
 
 /**
- * Clears the board with dead cells.
+ * Clears the Board with dead cells by traversing it and
+ * killing each Cell.
  */
 Board.prototype.clear = function () {
     console.log("clear board");
     for (var x = 0; x < this.width; x++) {
         for (var y = 0; y < this.height; y++) {
-            this.cells[x][y].isAlive = false;
+            this.cells[x][y].kill();
         }
     }
 };
 
 // TODO: draw functions should have a reference to the context?
 // i.e. function(ctx)?
+/**
+ * Draws the current state of the Board object by traversing
+ * the Board and drawing each Cell object.
+ */
 Board.prototype.draw = function () {
-    // clear the canvas
-    //context.clearRect(0, 0, canvas.width, canvas.height);
     var xPos;
     var yPos;
     var widthPx = this.width * CELL_SIZE;
     var heightPx = this.height * CELL_SIZE;
+    context.clearRect(0, 0, widthPx, heightPx);
     context.beginPath();
 
     // TODO: move drawing code to two functions?
@@ -112,11 +173,17 @@ Board.prototype.draw = function () {
     context.moveTo(0, heightPx);
     context.lineTo(widthPx, heightPx);
 
-    context.strokeStyle = "#333";
+    context.strokeStyle = "#ddd";
     context.stroke();
 };
 
+/**
+ * Updates the state of each Cell object for the Board.
+ */
 Board.prototype.update = function () {
+    console.log("update");
+    // Determine the state of the next generation of each
+    // Cell object on the Board.
     for (var x = 0; x < this.width; x++) {
         for (var y = 0; y < this.height; y++) {
             this.next[x][y] = this.cells[x][y].isAlive &&
@@ -125,37 +192,59 @@ Board.prototype.update = function () {
         }
     }
     
+    // Use the state of the next generation to affect each 
+    // Cell object on the Board. 
     for (var x = 0; x < this.width; x++) {
         for (var y = 0; y < this.height; y++) {
-            this.cells[x][y].isAlive = this.next[x][y];
+            // The current Cell
+            var cell = this.cells[x][y];
+            
+            // The "alive" status of this Cell in the next generation.
+            var aliveNextGen = this.next[x][y];
+            
+            // If this Cell is currently alive and it is
+            // still alive next generation
+            if (cell.isAlive && aliveNextGen) {
+                // then increment this Cell's maturity if it isn't
+                // already at the maximum of 1
+                if (cell.maturity < 1)
+                    cell.maturity += 0.1;
+            } else if (cell.isAlive && !aliveNextGen) {
+                // Otherwise, if this Cell is currently alive and
+                // it is not alive next generation, kill it.
+                cell.kill();
+            } else if (!cell.isAlive && aliveNextGen) {
+                // Otherwise, if this Cell is currently dead and
+                // is is alive next generation, bring it to life;
+                cell.isAlive = true;
+            }
         }
     }
 };
 
+/**
+ * Retrieves the number of living Cell objects surrounding
+ * the Cell at the given location.
+ * 
+ * @param {Number} x - The x-coordinate of the Cell object in terms of the Board.
+ * @param {Number} y - The y-coordinate of the Cell object in terms of the Board.
+ * @returns {Number} The number of living neighbors the Cell has.
+ */
 Board.prototype.getLivingNeighbors = function (x, y) {
+    // The number of alive neighbors the cell has.
     var count = 0;
+    
+    // A reference to the cells array of the board.
     var cells = this.cells;
+    
+    // The height and width of the board.
+    var height = this.height;
+    var width = this.width;
 
-    // Check cell on the right.
-    if (x !== this.width - 1)
-        if (cells[x + 1][y].isAlive)
-            count++;
-
-    // Check cell on the bottom right.
-    if (x !== this.width - 1 && y !== this.height - 1)
-        if (cells[x + 1][y + 1].isAlive)
-            count++;
-
-    // Check cell on the bottom.
-    if (y !== this.height - 1)
-        if (cells[x][y + 1].isAlive)
-            count++;
-
-    // Check cell on the bottom left.
-    if (x !== 0 && y !== this.height - 1)
-        if (cells[x - 1][y + 1].isAlive)
-            count++;
-
+    // Check each cell surrounding the cell at the given
+    // location and increment the counter based on the
+    // "alive" status of each of those cells.
+    
     // Check cell on the left.
     if (x !== 0)
         if (cells[x - 1][y].isAlive)
@@ -172,20 +261,48 @@ Board.prototype.getLivingNeighbors = function (x, y) {
             count++;
 
     // Check cell on the top right.
-    if (x !== this.width - 1 && y !== 0)
+    if (x !== width - 1 && y !== 0)
         if (cells[x + 1][y - 1].isAlive)
             count++;
 
+    // Check cell on the right.
+    if (x !== width - 1)
+        if (cells[x + 1][y].isAlive)
+            count++;
+
+    // Check cell on the bottom right.
+    if (x !== width - 1 && y !== height - 1)
+        if (cells[x + 1][y + 1].isAlive)
+            count++;
+
+    // Check cell on the bottom.
+    if (y !== height - 1)
+        if (cells[x][y + 1].isAlive)
+            count++;
+
+    // Check cell on the bottom left.
+    if (x !== 0 && y !== height - 1)
+        if (cells[x - 1][y + 1].isAlive)
+            count++;
+    
+    // Return the number of living neighbors.
     return count;
 };
 
+/**
+ * When a Cell on the board is clicked, toggle
+ * the "alive" state of the Cell at the given
+ * location on the board.
+ * 
+ * @param {Number} x - The x-coordinate of the Cell in terms of the Board.
+ * @param {Number} y - The y-coordinate of the Cell in terms of the Board.
+ */
 Board.prototype.clickCell = function(x, y) {
     this.cells[x][y].toggle();
 }
 
 // TODO: allow user to set width and height params.
 var board = new Board(50, 30);
-//board.draw();
 
 // Update the board every half second
 // TODO: control how often the board gets updated.
@@ -208,23 +325,6 @@ window.addEventListener('keydown', function(event){
         running = !running;
     }
 }, false);
-
-// function getPosition(event) {
-//     var x = event.x;
-//     var y = event.y;
-//
-//     x -= canvas.offsetLeft;
-//     y -= canvas.offsetTop;
-//
-//     x /= CELL_SIZE;
-//     y /= CELL_SIZE;
-//     // check if this position "collides" with a cell.
-//     // i.e. did the user click a cell
-//     console.log(board.cells);
-//     board.clickCell(x, y);
-//
-//     console.log("x: %d, y: %d", x, y);
-// }
 
 canvas.addEventListener('mousedown', function(event){
     var x = event.x - canvas.offsetLeft;
