@@ -19,6 +19,64 @@
             <input id="height" type="text" name="height" value="400">
         </div>
         -->
+        <div id="color-palette">
+            <!-- This is ugly and should be built with code -->
+            <!-- Get rid of focus hightlights -->
+            <input id="color1-btn"
+                type="radio"
+                name="color"
+                onclick="colorPalette.chooseColor('color1')" />
+            <input id="color1"
+                class="color-picker"
+                type="color"
+                value="#ff0000" />
+
+            <input id="color2-btn"
+                type="radio"
+                name="color"
+                onclick="colorPalette.chooseColor('color2')" />
+            <input id="color2"
+                class="color-picker"
+                type="color"
+                value="#00ff00" />
+
+            <input id="color3-btn"
+                type="radio"
+                name="color"
+                onclick="colorPalette.chooseColor('color3')" />
+            <input id="color3"
+                class="color-picker"
+                type="color"
+                value="#0000ff" />
+
+            <input id="color4-btn"
+                type="radio"
+                name="color"
+                onclick="colorPalette.chooseColor('color4')" />
+            <input id="color4"
+                class="color-picker"
+                type="color"
+                value="#ffff00" />
+
+            <input id="color5-btn"
+                type="radio"
+                name="color"
+                onclick="colorPalette.chooseColor('color5')" />
+            <input id="color5"
+                class="color-picker"
+                type="color"
+                value="#ff00ff" />
+
+            <input id="color6-btn"
+                type="radio"
+                name="color"
+                onclick="colorPalette.chooseColor('color6')" />
+            <input id="color6"
+                class="color-picker"
+                type="color"
+                value="#00ffff" />
+        </div>
+
         <canvas id="canvas"></canvas>
 
         <script src="./app.js" type="text/javascript"></script>
