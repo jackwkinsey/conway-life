@@ -4,10 +4,10 @@
  * ----------------------------------------------------------------------------
  * A JavaScript implementation of Conway's Game of Life with a couple of
  * alterations:
- * 
+ *
  * 1. Genetics - A cell has a color and it inherited from its 3 parents.
  * 2. Maturity - A cell matures each generation it survives (opacity).
- * 
+ *
  * @author Jack Kinsey
  * @version 1.0.0
  */
@@ -33,7 +33,7 @@ var context = canvas.getContext('2d');
 
 /**
  * Model for Cell object.
- * 
+ *
  * @constructor
  * @param {Number} x - The x-coordinate of the cell in terms of the Board.
  * @param {Number} y - The y-coordinate of the cell in terms of the Board.
@@ -60,7 +60,7 @@ Cell.prototype.draw = function () {
                      this.y * CELL_SIZE,
                      CELL_SIZE,
                      CELL_SIZE);
-                     
+
    context.globalAlpha = 1;
 };
 
@@ -82,12 +82,12 @@ Cell.prototype.toggle = function () {
 Cell.prototype.kill = function() {
     this.isAlive = false;
     this.maturity = 0.1;
-}
+};
 
 /**
  * Model for Board object. The game's board in which the
  * Cell objects live.
- * 
+ *
  * @constructor
  * @param {Number} width - The width, in Cells, of the game board.
  * @param {Number} height - The height, in Cells, of the game board.
@@ -191,17 +191,17 @@ Board.prototype.update = function () {
                               this.getLivingNeighbors(x, y) === 3;
         }
     }
-    
-    // Use the state of the next generation to affect each 
-    // Cell object on the Board. 
+
+    // Use the state of the next generation to affect each
+    // Cell object on the Board.
     for (var x = 0; x < this.width; x++) {
         for (var y = 0; y < this.height; y++) {
             // The current Cell
             var cell = this.cells[x][y];
-            
+
             // The "alive" status of this Cell in the next generation.
             var aliveNextGen = this.next[x][y];
-            
+
             // If this Cell is currently alive and it is
             // still alive next generation
             if (cell.isAlive && aliveNextGen) {
@@ -225,7 +225,7 @@ Board.prototype.update = function () {
 /**
  * Retrieves the number of living Cell objects surrounding
  * the Cell at the given location.
- * 
+ *
  * @param {Number} x - The x-coordinate of the Cell object in terms of the Board.
  * @param {Number} y - The y-coordinate of the Cell object in terms of the Board.
  * @returns {Number} The number of living neighbors the Cell has.
@@ -233,10 +233,10 @@ Board.prototype.update = function () {
 Board.prototype.getLivingNeighbors = function (x, y) {
     // The number of alive neighbors the cell has.
     var count = 0;
-    
+
     // A reference to the cells array of the board.
     var cells = this.cells;
-    
+
     // The height and width of the board.
     var height = this.height;
     var width = this.width;
@@ -244,7 +244,7 @@ Board.prototype.getLivingNeighbors = function (x, y) {
     // Check each cell surrounding the cell at the given
     // location and increment the counter based on the
     // "alive" status of each of those cells.
-    
+
     // Check cell on the left.
     if (x !== 0)
         if (cells[x - 1][y].isAlive)
@@ -284,7 +284,7 @@ Board.prototype.getLivingNeighbors = function (x, y) {
     if (x !== 0 && y !== height - 1)
         if (cells[x - 1][y + 1].isAlive)
             count++;
-    
+
     // Return the number of living neighbors.
     return count;
 };
@@ -293,13 +293,13 @@ Board.prototype.getLivingNeighbors = function (x, y) {
  * When a Cell on the board is clicked, toggle
  * the "alive" state of the Cell at the given
  * location on the board.
- * 
+ *
  * @param {Number} x - The x-coordinate of the Cell in terms of the Board.
  * @param {Number} y - The y-coordinate of the Cell in terms of the Board.
  */
 Board.prototype.clickCell = function(x, y) {
     this.cells[x][y].toggle();
-}
+};
 
 // TODO: allow user to set width and height params.
 var board = new Board(50, 30);
@@ -309,14 +309,14 @@ var board = new Board(50, 30);
 // Slider to change FPS?
 setInterval(function() {
     // Draw the current state of the board.
-    board.draw();  
-    
+    board.draw();
+
     // Update the board if the game is running
     if (running) {
         // Update the state of the board.
-        board.update(); 
+        board.update();
     }
-            
+
 }, 1000/FPS);
 
 // Input
@@ -329,13 +329,12 @@ window.addEventListener('keydown', function(event){
 canvas.addEventListener('mousedown', function(event){
     var x = event.x - canvas.offsetLeft;
     var y = event.y - canvas.offsetTop;
-    
+
     x /= CELL_SIZE;
     y /= CELL_SIZE;
-    
+
     x = Math.floor(x);
     y = Math.floor(y);
-    
+
     board.clickCell(x, y);
 }, false);
-
