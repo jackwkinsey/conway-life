@@ -189,7 +189,6 @@ Board.prototype.draw = function () {
  * Updates the state of each Cell object for the Board.
  */
 Board.prototype.update = function () {
-    console.log("update");
     // Determine the state of the next generation of each
     // Cell object on the Board.
     for (var x = 0; x < this.width; x++) {
@@ -242,15 +241,21 @@ Board.prototype.getLivingNeighbors = function (x, y) {
     // A reference to the cells array of the board.
     var cells = this.cells;
 
+    // A reference to this cell.
     var currentCell = cells[x][y];
 
     // The height and width of the board.
     var height = this.height;
     var width = this.width;
 
+    // An array to hold this cells alive neighbors.
     var aliveNeighbors = [];
 
+    // The cell we are testing (changes to each neighbor).
     var cell;
+
+    // The number of living neighbors this cell has.
+    var countLiving = 0;
 
     // Check each cell surrounding the cell at the given
     // location and increment the counter based on the
@@ -320,16 +325,26 @@ Board.prototype.getLivingNeighbors = function (x, y) {
         }
     }
 
+    // Set the count equal to the length of the array
+    // we just built.
+    countLiving = aliveNeighbors.length;
+
     // If this cell is dead and has 3 alive neighbors,
     // then it is going to come to life so build the new
-    // color from the 3 alive cells.
-    //TODO: implement building the color.
-    if (!currentCell.isAlive && aliveNeighbors.length) {
-        //alert(aliveNeighbors[0].color);
+    // color from the 3 alive cells and set this cell's
+    // color to it.
+    if (!currentCell.isAlive && countLiving === 3) {
+        currentCell.color = '#';
+        for (var i = 0; i < countLiving; i++) {
+            // Calculate the starting position to use for
+            // the substr method.
+            var substrIndex = i * 2 + 1;
+            currentCell.color += aliveNeighbors[i].color.substr(substrIndex, 2);
+        }
     }
 
     // Return the number of living neighbors.
-    return aliveNeighbors.length;
+    return countLiving;
 };
 
 /**
