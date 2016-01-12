@@ -20,7 +20,7 @@ var CELL_SIZE = 15;
 
 // TODO: this should be variable (and set by the user).
 /** The frames per second in which the simulation should run. */
-var FPS = 5;
+var FPS = 1;
 
 /** Flag to determine if game is running, false by default. */
 var running = false;
@@ -50,19 +50,46 @@ function Cell (x, y, color) {
  * Draws the Cell object on the canvas.
  */
 Cell.prototype.draw = function () {
-    context.globalAlpha = this.maturity;
+    // Clear the rectangle that encloses this Cell (but making sure it
+    // is smaller than the grid lines so those don't get cleared).
+    context.clearRect(this.x * CELL_SIZE + 1,
+                      this.y * CELL_SIZE + 1,
+                      CELL_SIZE - 2,
+                      CELL_SIZE - 2 );
+
+    // Draw this Cell if it is alive.
     if (this.isAlive) {
+        // Set alpha value to the Cell's maturity value.
+        context.globalAlpha = this.maturity;
+
+        // Color the Cell using its color value.
         context.fillStyle = this.color;
-    } else {
-        context.fillStyle = "white";
+
+        // Begin the draw path
+        context.beginPath();
+
+        // Draw an arc with the center point at the center of this Cell,
+        // and a radius slightly smaller than the CELL_SIZE (so it fits
+        // nicely in the grid).
+        context.arc((this.x * CELL_SIZE) + CELL_SIZE / 2,
+                    (this.y * CELL_SIZE) + CELL_SIZE / 2,
+                    CELL_SIZE / 2 - 2,
+                    0, 2 * Math.PI);
+
+        // Close the path to finish the circle.
+        context.closePath();
+
+        // Fill the circle with the Cell's color.
+        context.fill();
+
+        // Set the styling & draw the outline of the Cell.
+        context.lineWidth = 2;
+        context.strokeStyle = 'black';
+        context.stroke();
     }
 
-    context.fillRect(this.x * CELL_SIZE,
-                     this.y * CELL_SIZE,
-                     CELL_SIZE,
-                     CELL_SIZE);
-
-   context.globalAlpha = 1;
+    // Set global alpha back to 1 so everything else is drawn correctly.
+    context.globalAlpha = 1;
 };
 
 /**
@@ -82,12 +109,17 @@ Cell.prototype.toggle = function () {
         this.isAlive = true;
         this.color = color;
     }
+
+    // Immediately draw this Cell instead of waiting on the Board
+    // to do so, this helps the app feel more responsive to user input.
+    this.draw();
 };
 
 /**
  * Kills the Cell object.
  */
 Cell.prototype.kill = function() {
+    // Set alive status to false and reset the maturity value.
     this.isAlive = false;
     this.maturity = 0.1;
 };
@@ -109,7 +141,6 @@ function Board(width, height) {
     // Convert the width & height of the board to be
     // in terms of pixels and set those values to
     // the width & height of the canvas, respectively.
-    // TODO: this should be moved elsewhere really
     context.canvas.width = this.width * CELL_SIZE;
     context.canvas.height = this.height * CELL_SIZE;
 
@@ -153,7 +184,7 @@ Board.prototype.draw = function () {
     var widthPx = this.width * CELL_SIZE;
     var heightPx = this.height * CELL_SIZE;
     context.clearRect(0, 0, widthPx, heightPx);
-    context.beginPath();
+    //context.beginPath();
 
     // TODO: move drawing code to two functions?
     // drawCells and drawGridlines?
@@ -163,26 +194,28 @@ Board.prototype.draw = function () {
         for (var y = 0; y < this.height; y++) {
             // Draw the cell.
             this.cells[x][y].draw();
-
-            // Draw grid line
-            xPos = x * CELL_SIZE;
-            context.moveTo(xPos, 0);
-            context.lineTo(xPos, heightPx);
-
-            yPos = y * CELL_SIZE;
-            context.moveTo(0, yPos);
-            context.lineTo(widthPx, yPos);
         }
     }
 
-    context.moveTo(widthPx, 0);
-    context.lineTo(widthPx, heightPx);
-
-    context.moveTo(0, heightPx);
-    context.lineTo(widthPx, heightPx);
-
-    context.strokeStyle = "#ddd";
-    context.stroke();
+    // TODO: draw grid once? Figure out a way to make that work?
+    for (var i = 0; i < this.width; i++) {
+        xPos = i * CELL_SIZE;
+        context.beginPath();
+        context.moveTo(xPos, 0);
+        context.lineTo(xPos, heightPx);
+        context.closePath();
+        context.strokeStyle = '#ddd';
+        context.stroke();
+    }
+    for (var j = 0; j < this.width; j++) {
+        yPos = j * CELL_SIZE;
+        context.beginPath();
+        context.moveTo(0, yPos);
+        context.lineTo(widthPx, yPos);
+        context.closePath();
+        context.strokeStyle = '#ddd';
+        context.stroke();
+    }
 };
 
 /**
@@ -360,19 +393,23 @@ Board.prototype.clickCell = function(x, y) {
 };
 
 // TODO: allow user to set width and height params.
+// Create a new Board object.
 var board = new Board(50, 30);
+// Draw the initial state of the board (empty).
+// We do this to get our nice grid overlay drawn.
+board.draw();
 
 // Update the board every half second
 // TODO: control how often the board gets updated.
 // Slider to change FPS?
 setInterval(function() {
-    // Draw the current state of the board.
-    board.draw();
-
     // Update the board if the game is running
     if (running) {
         // Update the state of the board.
         board.update();
+
+        // Draw the current state of the board.
+        board.draw();
     }
 
 }, 1000/FPS);
