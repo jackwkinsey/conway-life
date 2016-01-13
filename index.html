@@ -10,17 +10,33 @@
     </head>
     <body>
         <h1>Game of Life</h1>
-        <!--
-        <div id="control-panel">
-            <label for="width">width: </label>
-            <input id="width" type="number" name="width" value="400">
 
-            <label for="height">height: </label>
-            <input id="height" type="text" name="height" value="400">
+        <div id="control-panel">
+            <label for="width">Width (in Cells):</label>
+            <input id="width" type="number" name="width" value="50" min="0" />
+
+            <br />
+
+            <label for="height">Height (in Cells):</label>
+            <input id="height" type="number" name="height" value="30" min="0" />
+
+            <br />
+
+            <input id="create-btn" class="button" type="button" value="Create" />
+            <input id="play-pause-btn" class="button" type="button" value="Play" />
+            <input id="clear-btn" class="button" type="button" value="Clear" />
+
+            <br />
+
+            <label>
+                <b>FPS:</b> 1
+                <input id="fps-slider" type="range" min="1" max="60" value="5" />
+                60
+            </label>
         </div>
-        -->
+
         <div id="color-palette">
-            <!-- TODO: This is ugly and should be built with code -->
+            <!-- TODO: This is ugly and should be built with JavaScript -->
             <!-- Get rid of focus hightlights -->
             <input id="color1-btn"
                 type="radio"

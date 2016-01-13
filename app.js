@@ -20,7 +20,7 @@ var CELL_SIZE = 15;
 
 // TODO: this should be variable (and set by the user).
 /** The frames per second in which the simulation should run. */
-var FPS = 1;
+var fps = 1;
 
 /** Flag to determine if game is running, false by default. */
 var running = false;
@@ -412,7 +412,7 @@ setInterval(function() {
         board.draw();
     }
 
-}, 1000/FPS);
+}, 1000/fps);
 
 // Object to represent the Color Palette and have some
 // helper methods for setting and getting the color.
@@ -447,18 +447,22 @@ window.addEventListener('keydown', function(event){
 
     // Select the color from the color palette based on
     // which number the user presses (hot keys for the palette).
-    if (event.keyCode === 49 || event.keyCode === 97) {
-        document.getElementById('color1-btn').click();
-    } else if (event.keyCode === 50 || event.keyCode === 98) {
-        document.getElementById('color2-btn').click();
-    } else if (event.keyCode === 51 || event.keyCode === 99) {
-        document.getElementById('color3-btn').click();
-    } else if (event.keyCode === 52 || event.keyCode === 100) {
-        document.getElementById('color4-btn').click();
-    } else if (event.keyCode === 53 || event.keyCode === 101) {
-        document.getElementById('color5-btn').click();
-    } else if (event.keyCode === 54 || event.keyCode === 102) {
-        document.getElementById('color6-btn').click();
+    // But ignore input if user is typing in width or height of the board.
+    if ((document.getElementById('width') !== document.activeElement) &&
+        (document.getElementById('height') !== document.activeElement)) {
+        if (event.keyCode === 49 || event.keyCode === 97) {
+            document.getElementById('color1-btn').click();
+        } else if (event.keyCode === 50 || event.keyCode === 98) {
+            document.getElementById('color2-btn').click();
+        } else if (event.keyCode === 51 || event.keyCode === 99) {
+            document.getElementById('color3-btn').click();
+        } else if (event.keyCode === 52 || event.keyCode === 100) {
+            document.getElementById('color4-btn').click();
+        } else if (event.keyCode === 53 || event.keyCode === 101) {
+            document.getElementById('color5-btn').click();
+        } else if (event.keyCode === 54 || event.keyCode === 102) {
+            document.getElementById('color6-btn').click();
+        }
     }
 
     if (event.keyCode === 191) {

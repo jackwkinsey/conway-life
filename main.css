@@ -1,10 +1,12 @@
+/* Native Element Styles */
 body, html {
     margin: 0;
+    font-family: 'Helvetica', sans-serif;
 }
 
 body {
-    background-color: royalblue;
-    color: white;
+    background-color: #eee;
+    color: #333;
 }
 
 h1 {
@@ -15,18 +17,36 @@ canvas {
     background-color: white;
     margin: 0 auto;
     display: block;
+    border: 1px #333 solid;
+    border-radius: 5px;
 }
 
-.color-picker {
-    margin: 3px;
-    border: 5px white solid;
-    border-radius: 3px;
+/* Class Styles */
+.button {
+    margin: 20px 10px;
+    padding: 5px 15px;
+    color: white;
+    background-color: #4169E1;
+    border: 2px royalblue solid;
+    border-radius: 5px;
+    width: 75px;
+}
+.button:hover {
+    background-color: #5980f7;
+    border-color: #5980f7;
 }
 
 .chosen {
-    border: 5px #333 solid;
+    border: 5px #333 solid !important;
 }
 
+.color-picker {
+    margin: 10px;
+    border: 5px #eee solid;
+    border-radius: 3px;
+}
+
+/* ID Styles */
 #color-palette {
     text-align: center;
 }
@@ -34,4 +54,9 @@ canvas {
 #control-panel {
     text-align: center;
     margin-bottom: 15px;
+}
+
+#width, #height {
+    width: 50px;
+    margin: 5px;
 }
