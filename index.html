@@ -12,22 +12,26 @@
         <h1>Game of Life</h1>
 
         <div id="control-panel">
+            <!-- Input for width of board -->
             <label for="width">Width (in Cells):</label>
             <input id="width" type="number" name="width" value="50" min="0" />
 
             <br />
 
+            <!-- Input for height of board -->
             <label for="height">Height (in Cells):</label>
             <input id="height" type="number" name="height" value="30" min="0" />
 
             <br />
 
-            <input id="create-btn" class="button" type="button" value="Create" />
-            <input id="play-pause-btn" class="button" type="button" value="Play" />
-            <input id="clear-btn" class="button" type="button" value="Clear" />
+            <!-- Create, Play, and Clear buttons -->
+            <input id="create-btn" class="button" type="button" value="Create" onclick="createBoard();" />
+            <input id="play-pause-btn" class="button" type="button" value="Play" onclick="togglePlay();"/>
+            <input id="clear-btn" class="button" type="button" value="Clear" onclick="clearBoard();"/>
 
             <br />
 
+            <!-- Slider to control the FPS of the simulation -->
             <label>
                 <b>FPS:</b> 1
                 <input id="fps-slider" type="range" min="1" max="60" value="5" />
@@ -35,6 +39,7 @@
             </label>
         </div>
 
+        <!-- Color palette for user to select colors for painting cells -->
         <div id="color-palette">
             <!-- TODO: This is ugly and should be built with JavaScript -->
             <!-- Get rid of focus hightlights -->
@@ -93,6 +98,7 @@
                 value="#00ffff" />
         </div>
 
+        <!-- Canvas where the simulation is drawn -->
         <canvas id="canvas"></canvas>
 
         <script src="./app.js" type="text/javascript"></script>
