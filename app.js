@@ -182,7 +182,6 @@ function Board(width, height) {
  * killing each cell.
  */
 Board.prototype.clear = function () {
-    console.log("clear board");
     for (var x = 0; x < this.width; x++) {
         for (var y = 0; y < this.height; y++) {
             this.cells[x][y].kill();
