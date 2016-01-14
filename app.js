@@ -20,7 +20,8 @@ var CELL_SIZE = 15;
 
 // TODO: this should be variable (and set by the user).
 /** The frames per second in which the simulation should run. */
-var FPS = 1;
+var fps = 1;
+var speed = 1000/fps;
 
 /** Flag to determine if game is running, false by default. */
 var running = false;
@@ -122,6 +123,11 @@ Cell.prototype.kill = function() {
     // Set alive status to false and reset the maturity value.
     this.isAlive = false;
     this.maturity = 0.1;
+
+    // Cell is dead so make sure it is drawn immediately.
+    // This is to make sure the board is redrawn as soon
+    // as the Clear button is pressed.
+    this.draw();
 };
 
 /**
@@ -207,7 +213,7 @@ Board.prototype.draw = function () {
         context.strokeStyle = '#ddd';
         context.stroke();
     }
-    for (var j = 0; j < this.width; j++) {
+    for (var j = 0; j < this.height; j++) {
         yPos = j * CELL_SIZE;
         context.beginPath();
         context.moveTo(0, yPos);
@@ -399,21 +405,24 @@ var board = new Board(50, 30);
 // We do this to get our nice grid overlay drawn.
 board.draw();
 
-// Update the board every half second
-// TODO: control how often the board gets updated.
-// Slider to change FPS?
-setInterval(function() {
-    // Update the board if the game is running
+var gameLoop = function () {
     if (running) {
-        // Update the state of the board.
         board.update();
-
-        // Draw the current state of the board.
         board.draw();
     }
+};
 
-}, 1000/FPS);
+var interval = setInterval(gameLoop, speed);
 
+var modSpeed = function (newSpeed) {
+    clearInterval(interval);
+    interval = setInterval(gameLoop, newSpeed);
+};
+
+var fpsRange = document.getElementById('fps-slider');
+fpsRange.addEventListener('change', function() {
+    modSpeed(1000/fpsRange.value);
+});
 // Object to represent the Color Palette and have some
 // helper methods for setting and getting the color.
 var colorPalette = {
@@ -440,29 +449,24 @@ document.getElementById('color1-btn').click();
 // Add event handlers for various hot keys the user can use
 // to interact with the applicaiton.
 window.addEventListener('keydown', function(event){
-    // If the user hits SPACEBAR, then pause the simulation.
-    if (event.keyCode === 32) {
-        running = !running;
-    }
-
     // Select the color from the color palette based on
     // which number the user presses (hot keys for the palette).
-    if (event.keyCode === 49 || event.keyCode === 97) {
-        document.getElementById('color1-btn').click();
-    } else if (event.keyCode === 50 || event.keyCode === 98) {
-        document.getElementById('color2-btn').click();
-    } else if (event.keyCode === 51 || event.keyCode === 99) {
-        document.getElementById('color3-btn').click();
-    } else if (event.keyCode === 52 || event.keyCode === 100) {
-        document.getElementById('color4-btn').click();
-    } else if (event.keyCode === 53 || event.keyCode === 101) {
-        document.getElementById('color5-btn').click();
-    } else if (event.keyCode === 54 || event.keyCode === 102) {
-        document.getElementById('color6-btn').click();
-    }
-
-    if (event.keyCode === 191) {
-        alert(colorPalette.getColor());
+    // But ignore input if user is typing in width or height of the board.
+    if ((document.getElementById('width') !== document.activeElement) &&
+        (document.getElementById('height') !== document.activeElement)) {
+        if (event.keyCode === 49 || event.keyCode === 97) {
+            document.getElementById('color1-btn').click();
+        } else if (event.keyCode === 50 || event.keyCode === 98) {
+            document.getElementById('color2-btn').click();
+        } else if (event.keyCode === 51 || event.keyCode === 99) {
+            document.getElementById('color3-btn').click();
+        } else if (event.keyCode === 52 || event.keyCode === 100) {
+            document.getElementById('color4-btn').click();
+        } else if (event.keyCode === 53 || event.keyCode === 101) {
+            document.getElementById('color5-btn').click();
+        } else if (event.keyCode === 54 || event.keyCode === 102) {
+            document.getElementById('color6-btn').click();
+        }
     }
 }, false);
 
@@ -480,3 +484,46 @@ canvas.addEventListener('mousedown', function(event){
 
     board.clickCell(x, y);
 }, false);
+
+
+// Helper functions ------------------------------------------------------------
+// These are functions that help handle UI events.
+
+// Plays and pauses the simulation when the user presses the Play/Pause button.
+function togglePlay() {
+    var playPauseBtn = document.getElementById('play-pause-btn');
+    running = !running;
+
+    if (running) {
+        playPauseBtn.value = 'Pause';
+    } else {
+        playPauseBtn.value = 'Play';
+    }
+}
+
+// Calls the board's clear method and pauses the simulation.
+function clearBoard() {
+    board.clear();
+    pause();
+}
+
+function createBoard() {
+    var width = Math.round(document.getElementById('width').value);
+    var height = Math.round(document.getElementById('height').value);
+
+    if (width < 1 || height < 1) {
+        alert("Width & Height of board MUST be at least 1 cell unit.");
+        return;
+    }
+    board = new Board(width, height);
+    board.draw();
+
+    pause();
+}
+
+// Pauses the simulation if it is running.
+function pause() {
+    if (running) {
+        togglePlay();
+    }
+}
